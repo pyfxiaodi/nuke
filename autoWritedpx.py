@@ -1,113 +1,51 @@
-def easySave():
-    import os
-    import nuke
-    import re
-    import nukescripts
-    scriptPath = nuke.root().knob('name').value()
-    if scriptPath == '':
-        p = nuke.Panel('Save This Shit')
+def autoWritedpx():
+	import os
+	import nuke
+	import re
+	import nukescripts
 
-        p.addEnumerationPulldown('Job', 'Test Roto CleanUp Comp')
-        p.addEnumerationPulldown('Name', 'Tester Bar Bin Echo July Roy Sora xxx Yry Zly Zcg')
-        p.addSingleLineInput('Version', '001')
-        p.addButton('No, go fuck yourself')
-        p.addButton('Yes, please save it')
+	scriptPath = nuke.root().knob('name').value()
+	scriptPathList = re.split('/',scriptPath)
 
-        ret = p.show()
+	tempA = scriptPathList[-1]
+	tempB = re.split('\.', tempA)
 
-        job = p.value('Job')
-        name = p.value('Name')
-        version = p.value('Version')
-        file = None
-
-        if job == None:
-            pass
-        else:
-            sourceName = nuke.selectedNode().knob('file').value()
-            sourceNameList = re.split('/',sourceName)
-            print sourceName
-            print sourceNameList
-            showName = sourceNameList[-5]
-            shotName = sourceNameList[-3]
-            print showName
-            print shotName
-            savePath = '/Volumes/NukeDome/' + showName + '/' + 'Conform' + '/' + shotName + '/' + 'Script'
-            print savePath
-            saveFile = savePath + '/' + shotName + '_' + job + '_' + name + '_' + 'v' + version
-            print saveFile
-            if nuke.env['nc']:
-                file = saveFile + '.nknc'
-                nuke.scriptSave(file)
-            else:
-                file = saveFile + '.nk'
-                nuke.scriptSave(file)
-            nuke.scriptOpen(file)
-        
-    else:
-        print scriptPath
-        scriptPath = nuke.root().knob('name').value()
-        scriptPathList = re.split('/',scriptPath)
-
-        print scriptPathList
-        tempA = scriptPathList[-1]
-        tempB = re.split('\.', tempA)
-        tempC = re.split('_',tempB[0])
-
-        print tempB
-        print tempC
-
-        job = tempC[-3]
-        name = tempC[-2]
-        version = tempC[-1][1:]
-        count = int(version) + 1
-        Fcount = ("%03d" % count)
-
-        print job
-        print name
-        print version
-        print count
+	scriptName = tempB[0]
+	showName = scriptPathList[-5]
+	shotName = scriptPathList[-3]
+	diskStationPath = '/Volumes/VOLT_CENTRAL'
+	print showName
+	print shotName
+	print scriptName
 
 
-        p = nuke.Panel('Save As This Shit')
+	p = nuke.Panel('Any Sub Folder?')
 
-        p.addEnumerationPulldown('Job', job + ' Test Roto CleanUp Comp')
-        p.addEnumerationPulldown('Name', name + ' Tester Bar Bin Echo July Roy Sora xxx Yry Zly Zcg')
-        p.addSingleLineInput('Version', Fcount)
-        p.addButton('No, go fuck yourself')
-        p.addButton('Yes, please save it')
+	p.addSingleLineInput('Sub Folder', 'None')
+	p.addButton('Nope')
+	p.addButton('Yes, mkdir please')
 
-        ret = p.show()
+	ret = p.show()
+	subFolder = None
+	subFolder = p.value('Sub Folder')
 
-        job = p.value('Job')
-        name = p.value('Name')
-        version = p.value('Version')
+	if subFolder == 'None':
+		try:
+			os.makedirs(diskStationPath +'/'+ showName +'/'+ 'Dailies' +'/'+ shotName +'/'+ scriptName)
+		except:
+			pass
+		w = nuke.createNode('Write', inpanel = True)
+		output_path = diskStationPath +'/'+ showName +'/'+ 'Dailies' +'/'+ shotName +'/'+ scriptName +'/'+ scriptName +'.%04d.dpx'
+		w.knob('file').fromScript(output_path)
 
-        print job
-        print name
-        print version
+	else:
+		try:
+			os.makedirs(diskStationPath +'/'+ showName +'/'+ 'Dailies' +'/'+ shotName +'/'+ scriptName + '/' + subFolder)
+		except:
+			pass
+		w = nuke.createNode('Write', inpanel = True)
+		output_path = diskStationPath +'/'+ showName +'/'+ 'Dailies' +'/'+ shotName +'/'+ scriptName +'/'+ subFolder + '/' + scriptName +'.%04d.dpx'
+		w.knob('file').fromScript(output_path)
 
-        if job == None:
-            pass
-        else:
-            scriptPathList = re.split('/',scriptPath)
-            print scriptPath
-            print scriptPathList
 
-            showName = scriptPathList[-5]
-            shotName = scriptPathList[-3]
-            print showName
-            print shotName
-
-            savePath = '/Volumes/NukeDome/' + showName + '/' + 'Conform' + '/' + shotName + '/' + 'Script'
-            print savePath
-            saveFile = savePath + '/' + shotName + '_' + job + '_' + name + '_' + 'v' + version
-            print saveFile
-
-            if nuke.env['nc']:
-                file = saveFile + '.nknc'
-                nuke.scriptSave(file)
-            else:
-                file = saveFile + '.nk'
-                nuke.scriptSave(file)
-            nuke.scriptOpen(file)
 
